@@ -82,37 +82,40 @@ const displayMovements = function (acc) {
   });
 };
 
-displayMovements(account1);
-
 const calculateDeposit = function (acc) {
   // filtering mov that > 0 (deposit) and add all of it
-  const totalDeposit = acc.movements
+  return acc.movements
     .filter(mov => mov > 0)
     .reduce((acc, cur) => acc + cur, 0);
-
-  console.log(totalDeposit);
-  return totalDeposit;
 };
-
-calculateDeposit(account1);
 
 const calculateWithdrew = function (acc) {
   // filtering mov that < 0 (withdraw) and add all of it
-  const totalWitdraw = acc.movements
+  return acc.movements
     .filter(mov => mov < 0)
     .reduce((acc, cur) => acc + cur, 0);
-
-  console.log(totalWitdraw);
-  return totalWitdraw;
 };
-
-calculateWithdrew(account1);
 
 const calculateBalance = function (acc) {
-  const balance = acc.movements.reduce((acc, cur) => acc + cur, 0);
-
-  console.log(balance);
-  return balance;
+  return acc.movements.reduce((acc, cur) => acc + cur, 0);
 };
 
-calculateBalance(account1);
+const calculateInterest = function (acc) {
+  return acc.movements
+    .filter(mov => mov > 0)
+    .map(deposit => (deposit * acc.interestRate) / 100)
+    .filter(int => int > 1)
+    .reduce((acc, cur) => acc + cur, 0);
+};
+
+calculateInterest(account1);
+
+const displaySummary = function (acc) {
+  displayMovements(acc);
+  labelSumIn.textContent = `${calculateDeposit(acc)}€`;
+  labelSumOut.textContent = `${Math.abs(calculateWithdrew(acc))}€`;
+  labelSumInterest.textContent = `${calculateInterest(acc)}€`;
+  labelBalance.textContent = `${calculateBalance(acc)} €`;
+};
+
+displaySummary(account1);
