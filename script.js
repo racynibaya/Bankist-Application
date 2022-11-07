@@ -56,3 +56,30 @@ const inputTransferAmount = document.querySelector('.form__input--amount');
 const inputLoanAmount = document.querySelector('.form__input--loan-amount');
 const inputCloseUsername = document.querySelector('.form__input--user');
 const inputClosePin = document.querySelector('.form__input--pin');
+
+const displayMovements = function (acc) {
+  // set the default hmtl of movements in html
+  containerMovements.innerHTML = '';
+
+  // creating a row of every movement
+  acc.movements.forEach((mov, i) => {
+    // type of current movement
+    const type = mov > 0 ? 'deposit' : 'withdrawal';
+
+    // creating dynamic row
+    const html = `
+        <div class="movements__row">
+          <div class="movements__type movements__type--${type}">${
+      i + 1
+    } ${type}</div>
+          <div class="movements__date">3 days ago</div>
+          <div class="movements__value">${mov}€</div>
+        </div>
+    `;
+
+    // inserting latest row as first child of container
+    containerMovements.insertAdjacentHTML('afterbegin', html);
+  });
+};
+
+displayMovements(account1);
