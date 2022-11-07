@@ -83,3 +83,36 @@ const displayMovements = function (acc) {
 };
 
 displayMovements(account1);
+
+const calculateDeposit = function (acc) {
+  // filtering mov that > 0 (deposit) and add all of it
+  const totalDeposit = acc.movements
+    .filter(mov => mov > 0)
+    .reduce((acc, cur) => acc + cur, 0);
+
+  console.log(totalDeposit);
+  return totalDeposit;
+};
+
+calculateDeposit(account1);
+
+const calculateWithdrew = function (acc) {
+  // filtering mov that < 0 (withdraw) and add all of it
+  const totalWitdraw = acc.movements
+    .filter(mov => mov < 0)
+    .reduce((acc, cur) => acc + cur, 0);
+
+  console.log(totalWitdraw);
+  return totalWitdraw;
+};
+
+calculateWithdrew(account1);
+
+const calculateBalance = function (acc) {
+  const balance = acc.movements.reduce((acc, cur) => acc + cur, 0);
+
+  console.log(balance);
+  return balance;
+};
+
+calculateBalance(account1);
