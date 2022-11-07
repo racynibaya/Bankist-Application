@@ -82,6 +82,18 @@ const displayMovements = function (acc) {
   });
 };
 
+const createUsername = function (accs) {
+  accs.forEach(acc => {
+    acc.username = acc.owner
+      .toLowerCase()
+      .split(' ')
+      .map(n => n[0])
+      .join('');
+  });
+};
+
+createUsername(accounts);
+
 const calculateDeposit = function (acc) {
   // filtering mov that > 0 (deposit) and add all of it
   return acc.movements
@@ -108,8 +120,6 @@ const calculateInterest = function (acc) {
     .reduce((acc, cur) => acc + cur, 0);
 };
 
-calculateInterest(account1);
-
 const displaySummary = function (acc) {
   displayMovements(acc);
   labelSumIn.textContent = `${calculateDeposit(acc)}€`;
@@ -118,4 +128,27 @@ const displaySummary = function (acc) {
   labelBalance.textContent = `${calculateBalance(acc)} €`;
 };
 
-displaySummary(account1);
+let currentAccount;
+
+btnLogin.addEventListener('click', function (e) {
+  e.preventDefault();
+
+  // Check if log user is existing
+  currentAccount = accounts.find(
+    acc => acc.username === inputLoginUsername.value
+  );
+
+  // Check if pin is correct
+  if (currentAccount?.pin === +inputLoginPin.value) {
+    displaySummary(currentAccount);
+    containerApp.style.opacity = 100;
+
+    // clearing the input value
+    inputLoginPin.value = '';
+    inputLoginUsername.value = '';
+
+    // Removing the focus to input
+    inputLoginPin.blur();
+    inputLoginUsername.blur();
+  }
+});
