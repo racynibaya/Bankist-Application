@@ -109,7 +109,9 @@ const calculateWithdrew = function (acc) {
 };
 
 const calculateBalance = function (acc) {
-  return acc.movements.reduce((acc, cur) => acc + cur, 0);
+  acc.balance = acc.movements.reduce((acc, cur) => acc + cur, 0);
+
+  return acc.balance;
 };
 
 const calculateInterest = function (acc) {
@@ -120,13 +122,17 @@ const calculateInterest = function (acc) {
     .reduce((acc, cur) => acc + cur, 0);
 };
 
-const displaySummary = function (acc) {
+const updateUI = function (acc) {
   displayMovements(acc);
   labelSumIn.textContent = `${calculateDeposit(acc)}€`;
   labelSumOut.textContent = `${Math.abs(calculateWithdrew(acc))}€`;
   labelSumInterest.textContent = `${calculateInterest(acc)}€`;
   labelBalance.textContent = `${calculateBalance(acc)} €`;
 };
+
+accounts.forEach(acc => {
+  calculateBalance(acc);
+});
 
 let currentAccount;
 
@@ -140,15 +146,79 @@ btnLogin.addEventListener('click', function (e) {
 
   // Check if pin is correct
   if (currentAccount?.pin === +inputLoginPin.value) {
-    displaySummary(currentAccount);
+    updateUI(currentAccount);
     containerApp.style.opacity = 100;
 
     // clearing the input value
     inputLoginPin.value = '';
     inputLoginUsername.value = '';
 
+    labelWelcome.textContent = `Welcome ${currentAccount.owner.split(' ')[0]}`;
+
     // Removing the focus to input
     inputLoginPin.blur();
     inputLoginUsername.blur();
+  }
+});
+
+// Transfering money to another user
+btnTransfer.addEventListener('click', function (e) {
+  e.preventDefault();
+
+  const amount = +inputTransferAmount.value;
+
+  const receiverAccount = accounts.find(
+    acc => acc.username === inputTransferTo.value
+  );
+
+  if (
+    amount > 0 &&
+    currentAccount.balance >= amount &&
+    receiverAccount &&
+    receiverAccount.username !== currentAccount.username
+  ) {
+    currentAccount.movements.push(-amount);
+    receiverAccount.movements.push(amount);
+
+    inputTransferAmount.value = '';
+    inputTransferTo.value = '';
+    updateUI(currentAccount);
+  }
+  inputTransferAmount.value = '';
+  inputTransferTo.value = '';
+
+  inputTransferAmount.blur();
+  inputTransferTo.blur();
+});
+
+// Processing loan
+
+btnLoan.addEventListener('click', function (e) {
+  e.preventDefault();
+
+  const loanAmount = +inputLoanAmount.value;
+
+  typeof loanAmount === 'number' &&
+    loanAmount > 0 &&
+    currentAccount.movements.push(loanAmount);
+
+  updateUI(currentAccount);
+});
+
+// Close Account
+btnClose.addEventListener('click', function (e) {
+  e.preventDefault();
+
+  if (
+    inputCloseUsername.value === currentAccount.username &&
+    +inputClosePin.value === currentAccount.pin
+  ) {
+    accounts.splice(
+      accounts.findIndex(acc => acc.username === currentAccount.username),
+      1
+    );
+
+    containerApp.style.opacity = 0;
+    labelWelcome.textContent = 'Log in to get started';
   }
 });
