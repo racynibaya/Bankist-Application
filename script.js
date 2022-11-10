@@ -57,12 +57,16 @@ const inputLoanAmount = document.querySelector('.form__input--loan-amount');
 const inputCloseUsername = document.querySelector('.form__input--user');
 const inputClosePin = document.querySelector('.form__input--pin');
 
-const displayMovements = function (acc) {
+const displayMovements = function (acc, sort = false) {
   // set the default hmtl of movements in html
   containerMovements.innerHTML = '';
 
+  const movs = sort
+    ? acc.movements.slice().sort((a, b) => a - b)
+    : acc.movements;
+
   // creating a row of every movement
-  acc.movements.forEach((mov, i) => {
+  movs.forEach((mov, i) => {
     // type of current movement
     const type = mov > 0 ? 'deposit' : 'withdrawal';
 
@@ -159,6 +163,12 @@ btnLogin.addEventListener('click', function (e) {
     inputLoginPin.blur();
     inputLoginUsername.blur();
   }
+
+  inputLoginPin.value = '';
+  inputLoginUsername.value = '';
+
+  inputLoginPin.blur();
+  inputLoginUsername.blur();
 });
 
 // Transfering money to another user
@@ -198,27 +208,45 @@ btnLoan.addEventListener('click', function (e) {
 
   const loanAmount = +inputLoanAmount.value;
 
-  typeof loanAmount === 'number' &&
-    loanAmount > 0 &&
-    currentAccount.movements.push(loanAmount);
+  const highestDeposit = currentAccount.movements.reduce(
+    (acc, curr) => (acc > curr ? acc : curr),
+    currentAccount.movements[0]
+  );
 
-  updateUI(currentAccount);
+  const isAllowedToLoan = currentAccount.movements.some(
+    mov => mov >= loanAmount * 0.1
+  );
+
+  if (typeof loanAmount === 'number' && loanAmount > 0 && isAllowedToLoan) {
+    currentAccount.movements.push(loanAmount);
+    updateUI(currentAccount);
+  }
+
+  inputLoanAmount.value = '';
+  inputLoanAmount.blur();
 });
 
 // Close Account
 btnClose.addEventListener('click', function (e) {
   e.preventDefault();
 
+  // Check credentials if correct
   if (
     inputCloseUsername.value === currentAccount.username &&
     +inputClosePin.value === currentAccount.pin
   ) {
-    accounts.splice(
-      accounts.findIndex(acc => acc.username === currentAccount.username),
-      1
+    // find the index of acc to close
+    const index = accounts.findIndex(
+      acc => acc.username === currentAccount.username
     );
 
+    // Delete account
+    accounts.splice(index, 1);
+
+    // Hide UI
     containerApp.style.opacity = 0;
+
+    // Change the welcome message
     labelWelcome.textContent = 'Log in to get started';
   }
 });
